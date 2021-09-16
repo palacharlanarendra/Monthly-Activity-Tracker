@@ -1,0 +1,14 @@
+.days {
+  display: flex;
+  flex-wrap: wrap;
+}
+.days p {
+  border: 2px solid rgb(117, 117, 117);
+  margin: 20px;
+  padding: 20px;
+}
+.select {
+  background-color: teal;
+  width: 20px;
+  height: 20px;
+}
