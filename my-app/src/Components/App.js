@@ -4,10 +4,27 @@ class App extends React.Component {
   constructor() {
     super();
     this.state = {
-      eventList: [],
+      // eventList: this.getFromStorage(),
+      eventList: JSON.parse(localStorage.getItem('todo-app')) || [],
       eventName: '',
     };
   }
+
+  setToStorage = () => {
+    let data = JSON.stringify(this.state.eventList);
+    localStorage.setItem('todo-app', data);
+  };
+
+  getFromStorage = () => {
+    let data = localStorage.getItem('todo-app');
+    if (data) {
+      let parsedData = JSON.parse(data);
+      return parsedData;
+    } else {
+      return [];
+      // this.setState({ eventList: [] });
+    }
+  };
 
   handleChange = ({ target }) => {
     let { name, value } = target;
@@ -16,22 +33,35 @@ class App extends React.Component {
       [name]: value,
     });
   };
+
+  handleSelected = (selected, index) => {
+    let cloneEL = [...this.state.eventList];
+    cloneEL[index] = { ...cloneEL[index], selected };
+    this.setState({ eventList: cloneEL }, () => {
+      this.setToStorage();
+    });
+  };
+
   handleSubmit = (event) => {
     event.preventDefault();
-    this.setState({
-      eventList: [
-        ...this.state.eventList,
-        {
-          eventKey: this.state.eventName,
-          currentMonth: new Date().getMonth() + 1,
-          TotalDays: new Date(
-            new Date().getFullYear(),
-            new Date().getMonth() + 1,
-            0
-          ).getDate(),
-        },
-      ],
-    });
+    this.setState(
+      {
+        eventList: [
+          ...this.state.eventList,
+          {
+            eventKey: this.state.eventName,
+            currentMonth: new Date().getMonth() + 1,
+            TotalDays: new Date(
+              new Date().getFullYear(),
+              new Date().getMonth() + 1,
+              0
+            ).getDate(),
+            selected: [],
+          },
+        ],
+      },
+      () => this.setToStorage()
+    );
   };
 
   render() {
@@ -61,12 +91,17 @@ class App extends React.Component {
           </form>
         </section>
         <section>
-          {this.state.eventList.map((data) => (
+          {this.state.eventList.map((data, index) => (
             <>
               <Event
+                handleSelect={(selectedArr) =>
+                  this.handleSelected(selectedArr, index)
+                }
+                selected={data.selected}
                 eventKey={data.eventKey}
                 month={month[data.currentMonth]}
                 totalDays={data.TotalDays}
+                eventName={this.state.eventName}
               />
             </>
           ))}
